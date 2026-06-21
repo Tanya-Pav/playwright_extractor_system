@@ -1,3 +1,4 @@
+
 lines = [
     "# Asynchronous Web Automation & Data Extraction System",
     "",
@@ -9,7 +10,7 @@ lines = [
     "",
     "## 🚀 Key Features & Architecture",
     "",
-    "This repository demonstrates a unified architecture designed to handle two completely different web data harvesting scenarios in a single execution loop:",
+    "This repository demonstrates a **2-in-1 architecture** designed to handle two completely different web data harvesting scenarios using a unified core configuration:",
     "",
     "### ⚡ Core Case: Advanced Network Interception (`quotes`)",
     "* **Target:** Dynamic JS-rendered application with infinite scroll (`https://quotes.toscrape.com/scroll`).",
@@ -35,7 +36,7 @@ lines = [
     "",
     "1. **Clone the repository:**",
     "```bash",
-    "git clone [https://github.com/Tanya-Pav/playwright_extractor_system.git](https://github.com/Tanya-Pav/playwright_extractor_system.git)",
+    "git clone [https://github.com/yourusername/playwright_extractor_system.git](https://github.com/yourusername/playwright_extractor_system.git)",
     "cd playwright_extractor_system",
     "```",
     "",
@@ -59,21 +60,26 @@ lines = [
     "playwright install",
     "```",
     "",
-    "3. **Execute the Automated Pipeline & Launch the Dashboard:**",
-    "```bash",
-    "# Runs both extraction profiles sequentially without manual toggling",
-    "python main.py",
+    "3. **Configure the Extraction Mode:**",
+    "Open `config.py` and toggle between modes:",
+    "```python",
+    'CURRENT_CASE = "quotes"  # or "ecommerce"',
+    "```",
     "",
-    "# Launches the interactive visual control panel",
+    "4. **Execute the Pipeline & Launch the Dashboard:**",
+    "```bash",
+    "```bash",
+    "python main.py",
     "streamlit run dashboard.py",
     "```",
     "",
     "---",
     "",
     "## 📊 Data Pipeline Deliverables",
-    "The engine isolates profiles, cleanses data, and flattens datasets into concurrent formats stored securely inside the `/data` directory:",
-    "* `extracted_quotes.xlsx / .csv` — API intercepted data payload (Author, Quotes, Tags).",
-    "* `extracted_ecommerce.xlsx / .csv` — Type-casted and cleansed market product feeds."
+    "The system cleanses, normalizes, and automatically flattens data into three concurrent formats saved into the `/data` directory:",
+    "* `extracted_data.json` — Pre-formatted for NoSQL database ingestion.",
+    "* `extracted_data.csv` — Optimized for automated ETL pipeline data ingestion.",
+    "* `extracted_data.xlsx` — Formatted executive summaries with customized columns."
 ]
 
 with open("README.md", "w", encoding="utf-8") as f:
