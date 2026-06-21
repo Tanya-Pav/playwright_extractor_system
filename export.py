@@ -1,43 +1,37 @@
-import json
-import csv
 import pandas as pd
-import logging
 import config
+import logging
 
 logger = logging.getLogger(__name__)
 
-def export_data(data):
-    """Saves standardized records to disk in JSON, CSV, and Excel formats"""
-    if not data:
-        logger.warning("Export pipeline aborted: dataset is empty.")
+def export_data(parsed_data):
+    """
+    Форматирует собранные данные в DataFrame и экспортирует их
+    в изолированные файлы в зависимости от активного CURRENT_CASE.
+    """
+    if not parsed_data:
+        logger.warning("No data passed to export pipeline.")
         return
 
-    # 1. JSON Serialization
-    try:
-        with open(config.OUTPUT_JSON, "w", encoding="utf-8") as f:
-            json.dump(data, f, ensure_ascii=False, indent=4)
-        logger.info(f"JSON export completed successfully: {config.OUTPUT_JSON.name}")
-    except Exception as e:
-        logger.error(f"JSON writing failure: {e}")
+    # Создаем DataFrame из спарсенного списка словарей
+    df = pd.DataFrame(parsed_data)
 
-    # 2. CSV Generation
     try:
-        if data:
-            keys = data[0].keys()
-            with open(config.OUTPUT_CSV, "w", newline="", encoding="utf-8-sig") as f:
-                dict_writer = csv.DictWriter(f, fieldnames=keys)
-                dict_writer.writeheader()
-                dict_writer.writerows(data)
-            logger.info(f"CSV export completed successfully: {config.OUTPUT_CSV.name}")
-    except Exception as e:
-        logger.error(f"CSV writing failure: {e}")
+        # 1. Экспорт в CSV (Вызываем динамическую функцию со скобками)
+        csv_path = config.get_output_csv()
+        df.to_csv(csv_path, index=False, encoding="utf-8")
+        logger.info(f"Successfully exported CSV deliverable to: {csv_path.name}")
 
-    # 3. Excel Report Building
-    try:
-        df = pd.DataFrame(data)
-        # Apply structured corporate naming headers
-        df.columns = ["Name / Title", "Content / Price", "Metadata / SKU"]
-        df.to_excel(config.OUTPUT_XLSX, index=False, engine="openpyxl")
-        logger.info(f"Excel export completed successfully: {config.OUTPUT_XLSX.name}")
+        # 2. Экспорт в Excel (Вызываем динамическую функцию со скобками)
+        xlsx_path = config.get_output_xlsx()
+        with pd.ExcelWriter(xlsx_path, engine="openpyxl") as writer:
+            df.to_excel(writer, index=False, sheet_name="Raw Data")
+        logger.info(f"Successfully exported XLSX deliverable to: {xlsx_path.name}")
+
+        # 3. Экспорт в JSON (при необходимости)
+        json_path = config.get_output_json()
+        df.to_json(json_path, orient="records", indent=4, force_ascii=False)
+        logger.info(f"Successfully exported JSON deliverable to: {json_path.name}")
+
     except Exception as e:
-        logger.error(f"Excel writing failure: {e}")
+        logger.error(f"Failed to write deliverables to disk: {e}", exc_info=True)

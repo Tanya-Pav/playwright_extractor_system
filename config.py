@@ -17,14 +17,19 @@ CASES = {
     }
 }
 
-
+# Текущий активный кейс
 CURRENT_CASE = "quotes"
+
+# Вместо property делаем функции, которые будут отдавать правильный Path по требованию
+def get_output_json():
+    return DATA_DIR / f"extracted_{CURRENT_CASE}.json"
+
+def get_output_csv():
+    return DATA_DIR / f"extracted_{CURRENT_CASE}.csv"
+
+def get_output_xlsx():
+    return DATA_DIR / f"extracted_{CURRENT_CASE}.xlsx"
 
 # Network and browser settings
 TIMEOUT = 30000
 HEADLESS = False
-
-# Output formats configuration
-OUTPUT_JSON = DATA_DIR / "extracted_data.json"
-OUTPUT_CSV = DATA_DIR / "extracted_data.csv"
-OUTPUT_XLSX = DATA_DIR / "extracted_data.xlsx"

@@ -9,8 +9,11 @@ logging.basicConfig(level=logging.INFO, format="%(asctime)s - [%(levelname)s] - 
 logger = logging.getLogger(__name__)
 
 
-async def main():
-    logger.info(f"--- RUNNING AUTOMATION ENGINE (Active Profile: {config.CURRENT_CASE}) ---")
+async def run_pipeline_for_case(case_name):
+    logger.info(f"--- RUNNING AUTOMATION ENGINE (Active Profile: {case_name}) ---")
+
+    # Принудительно устанавливаем текущий кейс в конфигурации
+    config.CURRENT_CASE = case_name
 
     scraper = PlaywrightScraper()
     raw_data = None
@@ -20,27 +23,35 @@ async def main():
         await scraper.start()
         raw_data = await scraper.navigate_and_extract()
     except Exception as e:
-        logger.critical(f"Crawler session crashed: {e}", exc_info=True)
+        logger.critical(f"Crawler session crashed for {case_name}: {e}", exc_info=True)
     finally:
         await scraper.close()
 
     if not raw_data:
-        logger.error("No raw payloads fetched. Execution stopped.")
+        logger.error(f"No raw payloads fetched for {case_name}. Execution stopped.")
         return
 
     # Phase 2: Structural processing based on data profile requirements
     parsed_data = []
-    if config.CURRENT_CASE == "quotes":
+    if case_name == "quotes":
         parsed_data = parser.parse_quotes_api(raw_data)
-    elif config.CURRENT_CASE == "ecommerce":
+    elif case_name == "ecommerce":
         parsed_data = parser.parse_ecommerce_html(raw_data)
 
     # Phase 3: Deliverables formatting and export execution
     if parsed_data:
+        # Модуль export внутри себя автоматически вызовет новые функции config.get_output_...()
         export.export_data(parsed_data)
-        logger.info("--- PIPELINE EXECUTION COMPLETED SUCCESSFULLY ---")
+        logger.info(f"--- PIPELINE EXECUTION FOR '{case_name.upper()}' COMPLETED SUCCESSFULLY ---")
     else:
-        logger.error("Data pipeline empty. Deliverables omitted.")
+        logger.error(f"Data pipeline empty for {case_name}. Deliverables omitted.")
+
+
+async def main():
+    # Запускаем сбор данных последовательно для каждого кейса
+    for case in ["quotes", "ecommerce"]:
+        await run_pipeline_for_case(case)
+        print("\n" + "=" * 50 + "\n")  # Визуальный разделитель в логах
 
 
 if __name__ == "__main__":
