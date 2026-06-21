@@ -1,0 +1,15 @@
+# Environmemt
+.venv/
+venv/
+
+# Setting
+.idea/
+
+# Cache
+__pycache__/
+*.pyc
+
+# DATA
+data/*.xlsx
+data/*.json
+data/*.csv
